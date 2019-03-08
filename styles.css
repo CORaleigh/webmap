@@ -1,0 +1,37 @@
+@media screen and (min-width: 980px) {
+.md-cb {
+    width: 65px;
+    height: 65px;
+}
+}
+@media screen and (min-width: 840px) {
+.md-cb {
+    width: 55px;
+    height: 55px;
+}
+}
+.md-cb {
+    position: absolute;
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    color: #fff;
+    background: #4A8B2C;
+    border: none;
+}
+.md, .md-cb {
+    top: 0;
+    right: 0;
+}
+
+.md-cb:before {
+    content: "\00D7";
+    position: absolute;
+    font-size: 45px;
+    font-size: 2.8125rem;
+    z-index: 2;
+    top: 40%;
+    left: 50%;
+    -webkit-transform: translateY(-50%) translateX(-50%);
+    transform: translateY(-50%) translateX(-50%);
+}

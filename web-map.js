@@ -1,7 +1,8 @@
 require([
     "esri/views/MapView",
-    "esri/WebMap"
-  ], function (MapView, WebMap) {
+    "esri/WebMap",
+    "esri/Map"
+  ], function (MapView, WebMap, Map) {
   
     class ArcGISWebMapElement extends HTMLElement {
       /**
@@ -9,7 +10,7 @@ require([
        * is a reference to our webmap.
        */
       static get observedAttributes () {
-        return ['webmapid', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup'];
+        return ['webmapid', 'search', 'address', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup', 'basemap', 'center', 'zoom'];
       }
   
       /**
@@ -18,13 +19,18 @@ require([
        */
       constructor () {
         super();
-  
+        this.closebutton = document.createElement('button');
+        this.closebutton.classList.add('md-cb');
+        this.closebutton.display = 'block';
+        document.body.appendChild(this.closebutton); 
         // setup a container for our map view
         this.container = document.createElement('div');
         this.container.style.width = '100%';
         this.container.style.height = '100%';
         this.style.display = 'block';
-  
+
+
+
         // setup at the MapView to point to our container
         this.view = new MapView({
           container: this.container
@@ -67,6 +73,41 @@ require([
             this.setupMap();
           }
         }
+
+        if (attribute === 'basemap') {
+          if (!this.webmapid) {
+            this.map = new Map({
+              basemap: this.basemap,
+            });
+            this.setupMap();
+
+          }
+        }
+        if (attribute === 'search') {
+          require([
+            "esri/widgets/Search"             
+          ],  (Search) => {     
+            const search = new Search({view: this.view,
+              container: document.createElement("div")
+            });
+            this.view.ui.add(  {
+                component: search,
+                position: "top-left",
+                index: 0
+              });
+            if (this.address && !this.querylayer) {
+              this.view.when(view => {
+                search.search(this.address);
+              });
+            }
+          });
+        }    
+        if (attribute === 'zoom') {
+          this.view.zoom = this.zoom;
+        }
+        if (attribute === 'center') {
+          this.view.center = this.center.split(',');
+        }
         
         if (attribute === 'querywhere') {
             
@@ -101,7 +142,7 @@ require([
                       const legendExpand = new Expand({
                 
                         view: this.view,
-                        group: 'top-right',
+                        group: 'bottom-left',
                         expandTooltip: 'Legend',
                 
                         expandIconClass: "esri-icon-layer-list",
@@ -109,7 +150,7 @@ require([
                         content: legend.domNode,
                         expanded: false
                         });   
-                      this.view.ui.add(legendExpand, 'top-right');
+                      this.view.ui.add(legendExpand, 'bottom-left');
               });      
         }
         if (attribute === 'layerlist') {
@@ -124,7 +165,7 @@ require([
                   const layerExpand = new Expand({
             
                     view: this.view,
-                    group: 'top-right',
+                    group: 'bottom-left',
                     expandTooltip: 'Layers',
             
                     expandIconClass: "esri-icon-layers",
@@ -132,7 +173,7 @@ require([
                     content: layerList.domNode,
                     expanded: false
                     });   
-                  this.view.ui.add(layerExpand, 'top-right');
+                  this.view.ui.add(layerExpand, 'bottom-left');
               });                
         }
         if (attribute === 'basemapselect') {
@@ -159,7 +200,7 @@ require([
                 const baseMapExpand = new Expand({
           
                   view: this.view,
-                  group: 'top-right',
+                  group: 'bottom-left',
                   expandTooltip: 'Basemaps',
           
                   expandIconClass: "esri-icon-basemap",
@@ -167,9 +208,10 @@ require([
                   content: baseMapList.domNode,
                   expanded: false
                   });   
-                this.view.ui.add(baseMapExpand, 'top-right');
+                this.view.ui.add(baseMapExpand, 'bottom-left');
               });           
-        }                
+        }     
+       
       }
   
   
@@ -182,6 +224,8 @@ require([
         }
   
         this.view.map = this.map;
+        this.view.ui.move([ "zoom"], "bottom-right");
+
         this.dispatchEvent(new CustomEvent('arcigswebmapsetup',{
           bubbles: true,
           cancelable: true
@@ -242,7 +286,42 @@ require([
   
       set basemapgroup (value) {
         this.setAttribute('basemapgroup', value);
-      }                             
+      }    
+      get search () {
+        return this.getAttribute('search');
+      }
+  
+      set search (value) {
+        this.setAttribute('search', value);
+      }               
+      get address () {
+        return this.getAttribute('address');
+      }
+  
+      set address (value) {
+        this.setAttribute('address', value);
+      }       
+      get basemap () {
+        return this.getAttribute('basemap');
+      }
+  
+      set basemap (value) {
+        this.setAttribute('basemap', value);
+      }     
+      get center () {
+        return this.getAttribute('center');
+      }
+  
+      set center (value) {
+        this.setAttribute('center', value);
+      }  
+      get zoom () {
+        return this.getAttribute('zoom');
+      }
+  
+      set zoom (value) {
+        this.setAttribute('zoom', value);
+      }                                          
     }
   
     customElements.define('arcgis-web-map', ArcGISWebMapElement);
