@@ -10,7 +10,7 @@ require([
        * is a reference to our webmap.
        */
       static get observedAttributes () {
-        return ['webmapid', 'search', 'address', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup', 'basemap', 'center', 'zoom'];
+        return ['webmapid', 'search', 'address', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup', 'basemap', 'center', 'zoom', 'navigate'];
       }
   
       /**
@@ -211,6 +211,42 @@ require([
                 this.view.ui.add(baseMapExpand, 'bottom-left');
               });           
         }     
+        if (attribute === 'navigate') {
+         if (this.navigate === 'false') {
+            this.view.on("drag", function(event){
+              // prevents panning with the mouse drag event
+              event.stopPropagation();
+            });
+            this.view.on("key-down", function(event){
+              // prevents panning with the arrow keys
+              var keyPressed = event.key;
+              if(keyPressed.slice(0,5) === "Arrow"){
+                event.stopPropagation();
+              }
+              var prohibitedKeys = [ "+", "-", "Shift", "_", "=" ];
+              var keyPressed = event.key;
+              if(prohibitedKeys.indexOf(keyPressed) !== -1){
+                event.stopPropagation();
+              }                
+            });  
+            this.view.on("mouse-wheel", function(event){
+              event.stopPropagation();
+            });  
+            this.view.on("double-click", function(event){
+              event.stopPropagation();
+            });  
+            this.view.on("double-click", ["Control"], function(event){
+              event.stopPropagation();
+            });      
+            this.view.on("drag", ["Shift"], function(event){
+              event.stopPropagation();
+            });
+
+            this.view.on("drag", ["Shift", "Control"], function(event){
+              event.stopPropagation();
+            });             
+         }
+        }
        
       }
   
