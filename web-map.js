@@ -357,7 +357,14 @@ require([
   
       set zoom (value) {
         this.setAttribute('zoom', value);
-      }                                          
+      }   
+      get navigate () {
+        return this.getAttribute('navigate');
+      }
+  
+      set navigate (value) {
+        this.setAttribute('navigate', value);
+      }               
     }
   
     customElements.define('arcgis-web-map', ArcGISWebMapElement);
