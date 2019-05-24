@@ -5,13 +5,7 @@ require([
   ], function (MapView, WebMap, Map) {
   
     class ArcGISWebMapElement extends HTMLElement {
-      /**
-       * We want to observe changes an attribute, which
-       * is a reference to our webmap.
-       */
-      static get observedAttributes () {
-        return ['webmapid', 'search', 'address', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup', 'basemap', 'center', 'zoom', 'navigate'];
-      }
+
   
       /**
        * The elements constructor function, you must call `super()`
@@ -19,6 +13,13 @@ require([
        */
       constructor () {
         super();
+      /**
+       * We want to observe changes an attribute, which
+       * is a reference to our webmap.
+       */
+      static get observedAttributes () {
+        return ['webmapid', 'search', 'address', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup', 'basemap', 'center', 'zoom', 'navigate'];
+      }          
         this.closebutton = document.createElement('button');
         this.closebutton.classList.add('md-cb');
         this.closebutton.display = 'block';
