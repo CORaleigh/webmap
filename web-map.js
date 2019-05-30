@@ -89,7 +89,14 @@ require([
             "esri/widgets/Search"             
           ],  (Search) => {     
             const search = new Search({view: this.view,
-              container: document.createElement("div")
+              container: document.createElement("div"),
+              goToOverride: (view,goToParams) => {
+                
+                if (this.zoom) {
+                  goToParams.target.zoom = parseInt(this.zoom);
+                }
+                return view.goTo(goToParams.target, goToParams.options);
+              }
             });
             this.view.ui.add(  {
                 component: search,
@@ -104,7 +111,10 @@ require([
           });
         }    
         if (attribute === 'zoom') {
-          this.view.zoom = this.zoom;
+          //if (newValue || !newValue && oldValue) {
+            
+            this.view.zoom = parseInt(this.zoom);
+         // }          
         }
         if (attribute === 'center') {
           this.view.center = this.center.split(',');
