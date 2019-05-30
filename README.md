@@ -43,3 +43,6 @@ Code from patrickarlt presentation from 2017 Esri Developer Summit
     - Zoom factor of the page
 - navigate (true/false)
     - Enable/Disable the ability to pan/zoom on the map
+- popup (true/false)
+    - Requires "search" to be enabled
+    -Hides the search bar and popup when searching addresses
