@@ -7,7 +7,7 @@ require([
     class ArcGISWebMapElement extends HTMLElement {
 
       static get observedAttributes () {
-        return ['webmapid', 'search', 'address', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup', 'basemap', 'center', 'zoom', 'navigate'];
+        return ['webmapid', 'search', 'address', 'querylayer', 'querywhere', 'legend', 'layerlist', 'basemapselect', 'basemapgroup', 'basemap', 'center', 'zoom', 'navigate', 'popup'];
       }  
       /**
        * The elements constructor function, you must call `super()`
@@ -29,7 +29,7 @@ require([
         this.container.style.width = '100%';
         this.container.style.height = '100%';
         this.style.display = 'block';
-
+        this.popup = true;
 
 
         // setup at the MapView to point to our container
@@ -84,30 +84,40 @@ require([
 
           }
         }
-        if (attribute === 'search') {
+        if (attribute === 'search' || attribute === 'address') {
+          
           require([
             "esri/widgets/Search"             
           ],  (Search) => {     
             const search = new Search({view: this.view,
               container: document.createElement("div"),
+              popupEnabled: JSON.parse(this.popup),
+              autoSelect: true,
               goToOverride: (view,goToParams) => {
                 
                 if (this.zoom) {
                   goToParams.target.zoom = parseInt(this.zoom);
                 }
+                search.clear(); 
+                search.loading = false;
                 return view.goTo(goToParams.target, goToParams.options);
               }
             });
-            this.view.ui.add(  {
+            
+            if (this.search != null && attribute === 'search') {
+              this.view.ui.add(  {
                 component: search,
                 position: "top-left",
                 index: 0
               });
+            }            
+
             if (this.address && !this.querylayer) {
               this.view.when(view => {
                 search.search(this.address);
               });
             }
+
           });
         }    
         if (attribute === 'zoom') {
@@ -119,7 +129,9 @@ require([
         if (attribute === 'center') {
           this.view.center = this.center.split(',');
         }
-        
+        if (attribute === 'popup') {
+          this.popup = false;
+        }        
         if (attribute === 'querywhere') {
             
             require([
@@ -224,6 +236,7 @@ require([
         }     
         if (attribute === 'navigate') {
          if (this.navigate === 'false') {
+           this.view.ui.remove('zoom');
             this.view.on("drag", function(event){
               // prevents panning with the mouse drag event
               event.stopPropagation();
@@ -375,7 +388,15 @@ require([
   
       set navigate (value) {
         this.setAttribute('navigate', value);
-      }               
+      }       
+      
+      get popup () {
+        return this.getAttribute('popup');
+      }
+  
+      set popup (value) {
+        this.setAttribute('popup', value);
+      }        
     }
   
     customElements.define('arcgis-web-map', ArcGISWebMapElement);
